@@ -1079,6 +1079,7 @@ func (k *Kernel) CreateProcess(args CreateProcessArgs) (*ThreadGroup, ThreadID, 
 		ContainerID:             args.ContainerID,
 		UserCounters:            k.GetUserCounters(args.Credentials.RealKUID),
 	}
+	config.NetworkNamespace.IncRef()
 	t, err := k.tasks.NewTask(ctx, config)
 	if err != nil {
 		return nil, 0, err
@@ -1846,6 +1847,7 @@ func (k *Kernel) Release() {
 	}
 	k.timekeeper.Destroy()
 	k.vdso.Release(ctx)
+	k.RootNetworkNamespace().DecRef()
 }
 
 // PopulateNewCgroupHierarchy moves all tasks into a newly created cgroup
